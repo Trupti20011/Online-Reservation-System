@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Online Reservation System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+		.container {
+		          display: flex;
+		          justify-content: space-between;
+		          align-items: flex-start;
+		          flex-wrap: wrap;
+				  margin: 20px 10px; /* Decreased left and right margin */
+				  flex: 1;
+				  max-width: 200%;
+		      }
+
+		      .form-container {
+		          background-color: #ffffff;
+		          border: 1px solid #ccc;
+		          padding: 20px;
+		          border-radius: 5px;
+		          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		          margin: 20px 0;
+		          width: 30%;
+		          box-sizing: border-box;
+		      }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input,
+        button {
+            display: block;
+            margin-top: 5px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1>Online Reservation System</h1>
+    <div id="login">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div id="loginError" class="error"></div>
+    </div>
+    <div id="reservation">
+        <h2>Book Reservation</h2>
+        <form id="reservationForm">
+            <label for="userId">User ID:</label>
+            <input type="text" id="userId" name="userId" required>
+            <label for="trainId">Train ID:</label>
+            <input type="text" id="trainId" name="trainId" required>
+            <label for="classType">Class Type:</label>
+            <input type="text" id="classType" name="classType" required>
+            <label for="dateOfJourney">Date of Journey:</label>
+            <input type="date" id="dateOfJourney" name="dateOfJourney" required>
+            <label for="fromPlace">From:</label>
+            <input type="text" id="fromPlace" name="fromPlace" required>
+            <label for="toPlace">To:</label>
+            <input type="text" id="toPlace" name="toPlace" required>
+            <button type="submit">Book</button>
+        </form>
+    </div>
+    <div id="cancellation">
+        <h2>Cancel Reservation</h2>
+        <form id="cancellationForm">
+            <label for="pnrNumber">PNR Number:</label>
+            <input type="text" id="pnrNumber" name="pnrNumber" required>
+            <button type="submit">Cancel</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Login Success:', data);
+                        alert('Login Successful');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Login Error:', error);
+                    document.getElementById('loginError').innerText = 'Login Failed: ' + error.message;
+                });
+        });
+
+        document.getElementById('reservationForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const reservationData = {
+                userId: document.getElementById('userId').value,
+                trainId: document.getElementById('trainId').value,
+                classType: document.getElementById('classType').value,
+                dateOfJourney: document.getElementById('dateOfJourney').value,
+                fromPlace: document.getElementById('fromPlace').value,
+                toPlace: document.getElementById('toPlace').value,
+            };
+
+            fetch('/reservations/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(reservationData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Reservation Success:', data);
+                        alert('Reservation Successful');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Reservation Error:', error);
+                    alert('Reservation Failed: ' + error.message);
+                });
+        });
+
+        document.getElementById('cancellationForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const pnrNumber = document.getElementById('pnrNumber').value;
+
+            fetch(`/cancellations/cancel?pnrNumber=${pnrNumber}`, {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Cancellation Success:', data);
+                        alert('Cancellation Successful');
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Cancellation Error:', error);
+                    alert('Cancellation Failed: ' + error.message);
+                });
+        });
+    </script>
+</body>
+
+</html>
